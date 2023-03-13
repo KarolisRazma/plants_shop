@@ -1,5 +1,5 @@
-import resources.plant as p
-import resources.seller as s
+import plant as p
+import seller as s
 
 
 class PlantShop:

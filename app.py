@@ -1,9 +1,8 @@
 import json
-
+import plant as pl
+import seller as sl
+import plants_shop as p_shop
 from flask import Flask, request, jsonify, Response
-import resources.plants_shop as p_shop
-import resources.plant as pl
-import resources.seller as sl
 
 app = Flask(__name__)
 
@@ -402,3 +401,7 @@ def delete_plant_seller(plant_id, seller_id):
     return Response(response=json.dumps({"Success": message}),
                     status=200,
                     mimetype="application/json")
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
