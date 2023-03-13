@@ -10,16 +10,16 @@
 ```docker-compose up```
 
 ## Sample data
-```
 Plant:
+```
 {   
     "id": 10
     "name": "Jasmine"
     "type": "Flower"
     "sellers": []
 }
-
 Seller:
+```
 {
     "id": 200
     "name": "Name200"
