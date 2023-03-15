@@ -97,16 +97,7 @@ def show_plant_specific_seller(plant_id, seller_id):
 def add_plant():
     data = request.get_json()
     # Check if json is correct
-    if len(data) == 4 and 'id' in data and 'name' in data and 'type' in data and 'sellers' in data:
-
-        # Check if plant already exists
-        for plant in plant_shop.plants:
-            if plant.id == data['id']:
-                message = "Bad request, plant already exists"
-                return Response(response=json.dumps({"Failure": message}),
-                                status=400,
-                                headers={"location": "/sellers/" + str(data['id'])},
-                                mimetype="application/json")
+    if len(data) == 3 and 'name' in data and 'type' in data and 'sellers' in data:
 
         # Convert to Sellers objects list
         sellers_objs = plant_shop.from_dict_to_sellers_objects(data['sellers'])
@@ -117,49 +108,41 @@ def add_plant():
                 message = "Seller is not found in plant_shop"
                 return Response(response=json.dumps({"Failure": message}),
                                 status=404,
-                                headers={"location": "/plants/" + str(data['id'])},
+                                headers={"location": "/plants"},
                                 mimetype="application/json")
 
         # Append new plant to the list
-        plant_shop.plants.append(pl.Plant(data['id'], data['name'], data['type'], sellers_objs))
+        new_plant = pl.Plant(data['name'], data['type'], sellers_objs)
+        plant_shop.plants.append(new_plant)
 
-        message = "Successfully added new plant to plant shop"
-        return Response(response=json.dumps({"Success": message}),
+        return Response(response=json.dumps(data),
                         status=201,
-                        headers={"location": "/plants/" + str(data['id'])},
+                        headers={"location": "/plants/" + str(new_plant.id)},
                         mimetype="application/json")
     else:
         message = "Bad request, incorrect plant object given"
         return Response(response=json.dumps({"Failure": message}),
                         status=400,
-                        headers={"location": "/plants/" + str(data['id'])},
+                        headers={"location": "/plants"},
                         mimetype="application/json")
 
 
 @app.post('/sellers')
 def add_seller():
     data = request.get_json()
-    if len(data) == 3 and 'id' in data and 'name' in data and 'surname' in data:
-        # Check if seller already exists
-        for plant_shop_seller in plant_shop.sellers:
-            if plant_shop_seller.id == data['id']:
-                message = "Bad request, seller already exists"
-                return Response(response=json.dumps({"Failure": message}),
-                                status=400,
-                                headers={"location": "/sellers/" + str(data['id'])},
-                                mimetype="application/json")
+    if len(data) == 2 and 'name' in data and 'surname' in data:
 
-        plant_shop.sellers.append(sl.Seller(data['id'], data['name'], data['surname']))
-        message = "Successfully added new seller to plant shop"
-        return Response(response=json.dumps({"Success": message}),
+        new_seller = sl.Seller(data['name'], data['surname'])
+        plant_shop.sellers.append(new_seller)
+        return Response(response=json.dumps(data),
                         status=201,
-                        headers={"location": "/sellers/" + str(data['id'])},
+                        headers={"location": "/sellers/" + str(new_seller.id)},
                         mimetype="application/json")
     else:
         message = "Bad request, incorrect seller object given"
         return Response(response=json.dumps({"Failure": message}),
                         status=400,
-                        headers={"location": "/sellers/" + str(data['id'])},
+                        headers={"location": "/sellers"},
                         mimetype="application/json")
 
 
@@ -173,7 +156,7 @@ def add_seller_to_plant(plant_id):
         message = "Plant is not found"
         return Response(response=json.dumps({"Failure": message}),
                         status=404,
-                        headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
+                        headers={"location": "/plants/" + str(plant_id) + "/sellers"},
                         mimetype="application/json")
 
     if len(data) == 3 and 'id' in data and 'name' in data and 'surname' in data:
@@ -186,12 +169,11 @@ def add_seller_to_plant(plant_id):
                 message = "Seller is not found in plant_shop"
                 return Response(response=json.dumps({"Failure": message}),
                                 status=404,
-                                headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
+                                headers={"location": "/plants/" + str(plant_id) + "/sellers"},
                                 mimetype="application/json")
             else:
                 plant.sellers.append(new_plant_seller)
-                message = "Successfully added new seller to plant id={}".format(plant_id)
-                return Response(response=json.dumps({"Success": message}),
+                return Response(response=json.dumps(data),
                                 status=201,
                                 headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
                                 mimetype="application/json")
@@ -199,7 +181,7 @@ def add_seller_to_plant(plant_id):
             message = "Bad request, seller already exists on plant's sellers list"
             return Response(response=json.dumps({"Failure": message}),
                             status=400,
-                            headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
+                            headers={"location": "/plants/" + str(plant_id) + "/sellers"},
                             mimetype="application/json")
 
     else:
@@ -215,8 +197,7 @@ def add_seller_to_plant(plant_id):
 def update_plant(plant_id):
     data = request.get_json()
     # If json is correct
-    if len(data) == 4 and 'id' in data and 'name' in data and 'type' in data and 'sellers' in data \
-            and data['id'] == plant_id:
+    if len(data) == 3 and 'name' in data and 'type' in data and 'sellers' in data:
 
         # Convert to sellers dict list to sellers objects list
         sellers_objs = plant_shop.from_dict_to_sellers_objects(data['sellers'])
@@ -227,35 +208,39 @@ def update_plant(plant_id):
                 message = "Seller is not found in plant_shop"
                 return Response(response=json.dumps({"Failure": message}),
                                 status=404,
-                                headers={"location": "/plants/" + str(data['id'])},
+                                headers={"location": "/plants/" + str(plant_id)},
                                 mimetype="application/json")
 
         plant = plant_shop.get_plant_by_id(plant_id)
         # If new plant is added
         if plant is None:
             # Append new plant to the list
-            plant_shop.plants.append(pl.Plant(data['id'], data['name'], data['type'], sellers_objs))
-            message = "Successfully added new plant to plant shop"
-            return Response(response=json.dumps({"Success": message}),
+            new_plant = pl.Plant(data['name'], data['type'], sellers_objs)
+            new_plant.id = plant_id
+            plant_shop.plants.append(new_plant)
+            # If id in endpoint was higher than current static plant id
+            if new_plant.id > pl.Plant.static_plant_id:
+                pl.Plant.static_plant_id = new_plant.id + 1
+
+            return Response(response=json.dumps(data),
                             status=201,
-                            headers={"location": "/plants/" + str(data['id'])},
+                            headers={"location": "/plants/" + str(plant_id)},
                             mimetype="application/json")
         else:
             # Update plant
             plant.name = data['name']
             plant.type = data['type']
             plant.sellers = sellers_objs
-            message = "Successfully updated plant in the plant shop"
-            return Response(response=json.dumps({"Success": message}),
+            return Response(response=json.dumps(data),
                             status=200,
-                            headers={"location": "/plants/" + str(data['id'])},
+                            headers={"location": "/plants/" + str(plant_id)},
                             mimetype="application/json")
 
     else:
         message = "Bad request, incorrect plant object given"
         return Response(response=json.dumps({"Failure": message}),
                         status=400,
-                        headers={"location": "/plants/" + str(data['id'])},
+                        headers={"location": "/plants/" + str(plant_id)},
                         mimetype="application/json")
 
 
@@ -263,32 +248,36 @@ def update_plant(plant_id):
 def update_seller(seller_id):
     data = request.get_json()
     # If json is correct
-    if len(data) == 3 and 'id' in data and 'name' in data and 'surname' in data and data['id'] == seller_id:
+    if len(data) == 2 and 'name' in data and 'surname' in data:
         seller = plant_shop.get_seller_by_id(seller_id)
         # If new seller is added
         if seller is None:
             # Append new seller to the list
-            plant_shop.sellers.append(sl.Seller(data['id'], data['name'], data['surname']))
-            message = "Successfully added new seller to plant shop"
-            return Response(response=json.dumps({"Success": message}),
+            new_seller = sl.Seller(data['name'], data['surname'])
+            new_seller.id = seller_id
+            plant_shop.sellers.append(new_seller)
+            # If id in endpoint was higher than current static seller id
+            if new_seller.id > sl.Seller.static_seller_id:
+                sl.Seller.static_seller_id = new_seller.id + 1
+
+            return Response(response=json.dumps(data),
                             status=201,
-                            headers={"location": "/sellers/" + str(data['id'])},
+                            headers={"location": "/sellers/" + str(seller_id)},
                             mimetype="application/json")
         else:
             # Update seller
             seller.name = data['name']
             seller.surname = data['surname']
-            message = "Successfully updated seller in the plant shop"
-            return Response(response=json.dumps({"Success": message}),
+            return Response(response=json.dumps(data),
                             status=200,
-                            headers={"location": "/sellers/" + str(data['id'])},
+                            headers={"location": "/sellers/" + str(seller_id)},
                             mimetype="application/json")
 
     else:
         message = "Bad request, incorrect seller object given"
         return Response(response=json.dumps({"Failure": message}),
                         status=400,
-                        headers={"location": "/sellers/" + str(data['id'])},
+                        headers={"location": "/sellers/" + str(seller_id)},
                         mimetype="application/json")
 
 
@@ -302,10 +291,10 @@ def update_plant_seller(plant_id, seller_id):
         message = "Plant is not found"
         return Response(response=json.dumps({"Failure": message}),
                         status=404,
-                        headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
+                        headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(seller_id)},
                         mimetype="application/json")
 
-    if len(data) == 3 and 'id' in data and 'name' in data and 'surname' in data and data['id'] == seller_id:
+    if len(data) == 2 and 'name' in data and 'surname' in data:
         seller = plant.find_seller(seller_id)
         # Check if seller exists in plant's sellers list
         if seller is None:
@@ -315,30 +304,29 @@ def update_plant_seller(plant_id, seller_id):
                 message = "Seller is not found in plant_shop"
                 return Response(response=json.dumps({"Failure": message}),
                                 status=404,
-                                headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
+                                headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(seller_id)},
                                 mimetype="application/json")
             # Append to plant's sellers list
-            # TODO or should it also update name/surname?
+            new_plant_seller.name = data['name']
+            new_plant_seller.surname = data['surname']
             plant.sellers.append(new_plant_seller)
-            message = "Successfully added new seller to plant id={}".format(plant_id)
-            return Response(response=json.dumps({"Success": message}),
+            return Response(response=json.dumps(data),
                             status=201,
-                            headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
+                            headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(seller_id)},
                             mimetype="application/json")
         else:
             # Update seller in plant's sellers list
             seller.name = data['name']
             seller.surname = data['surname']
-            message = "Successfully updated seller to plant id={}".format(plant_id)
-            return Response(response=json.dumps({"Success": message}),
+            return Response(response=json.dumps(data),
                             status=200,
-                            headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
+                            headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(seller_id)},
                             mimetype="application/json")
     else:
         message = "Bad request, incorrect seller object given"
         return Response(response=json.dumps({"Failure": message}),
                         status=400,
-                        headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
+                        headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(seller_id)},
                         mimetype="application/json")
 
 
@@ -354,7 +342,7 @@ def delete_plant(plant_id):
     plant_shop.plants.remove(plant)
     message = "Plant deleted successfully"
     return Response(response=json.dumps({"Success": message}),
-                    status=200,
+                    status=204,
                     headers={"location": "/plants/" + str(plant_id)},
                     mimetype="application/json")
 
@@ -375,7 +363,7 @@ def delete_seller(seller_id):
     plant_shop.sellers.remove(seller)
     message = "Seller deleted successfully"
     return Response(response=json.dumps({"Success": message}),
-                    status=200,
+                    status=204,
                     mimetype="application/json")
 
 
@@ -399,7 +387,7 @@ def delete_plant_seller(plant_id, seller_id):
     plant.sellers.remove(seller)
     message = "Seller deleted successfully from plant's sellers list"
     return Response(response=json.dumps({"Success": message}),
-                    status=200,
+                    status=204,
                     mimetype="application/json")
 
 

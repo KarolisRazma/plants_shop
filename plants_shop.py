@@ -5,22 +5,22 @@ import seller as s
 class PlantShop:
     def __init__(self):
         # Initial Data
-        plant1 = p.Plant(1, "Rose", "Flower")
-        plant2 = p.Plant(2, "Oak", "Tree")
-        plant3 = p.Plant(3, "Sunflower", "Flower")
+        plant1 = p.Plant("Rose", "Flower")
+        plant2 = p.Plant("Oak", "Tree")
+        plant3 = p.Plant("Sunflower", "Flower")
 
-        seller1 = s.Seller(101, "Name1", "Surname1")
-        seller2 = s.Seller(102, "Name2", "Surname2")
-        seller3 = s.Seller(103, "Name3", "Surname3")
+        seller1 = s.Seller("Name1", "Surname1")
+        seller2 = s.Seller("Name2", "Surname2")
+        seller3 = s.Seller("Name3", "Surname3")
 
         # Fields
         self.plants = [plant1, plant2, plant3]
         self.sellers = [seller1, seller2, seller3]
 
         # Add sellers to plants
-        self.add_seller_to_plant(plant_id=1, seller_id=101)
-        self.add_seller_to_plant(plant_id=1, seller_id=102)
-        self.add_seller_to_plant(plant_id=2, seller_id=102)
+        self.add_seller_to_plant(plant_id=1, seller_id=1)
+        self.add_seller_to_plant(plant_id=1, seller_id=2)
+        self.add_seller_to_plant(plant_id=2, seller_id=2)
 
     # Add to seller to Plant object field of type list "sellers"
     def add_seller_to_plant(self, plant_id, seller_id):
@@ -70,5 +70,9 @@ class PlantShop:
     # From dictionary sellers to Seller objects list
     @staticmethod
     def from_dict_to_sellers_objects(sellers_dict):
-        return [s.Seller(seller['id'], seller['name'], seller['surname']) for seller in sellers_dict]
-
+        sellers_objs = []
+        for seller in sellers_dict:
+            seller_obj = s.Seller(seller['name'], seller['surname'], is_generating_id=False)
+            seller_obj.id = seller['id']
+            sellers_objs.append(seller_obj)
+        return sellers_objs

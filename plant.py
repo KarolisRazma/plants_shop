@@ -1,8 +1,13 @@
 class Plant:
-    def __init__(self, plant_id, name, plant_type, sellers=None):
+    static_plant_id = 1
+
+    def __init__(self, name, plant_type, sellers=None):
         if sellers is None:
             sellers = []
-        self.id = plant_id
+        # automatic id assignment to plant
+        self.id = Plant.static_plant_id
+        Plant.static_plant_id += 1
+
         self.name = name
         self.type = plant_type
         self.sellers = sellers
