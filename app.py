@@ -96,6 +96,9 @@ def show_plant_specific_seller(plant_id, seller_id):
 @app.post('/plants')
 def add_plant():
     data = request.get_json()
+    if len(data) == 4 and 'id' in data:
+        del data['id']
+
     # Check if json is correct
     if len(data) == 3 and 'name' in data and 'type' in data and 'sellers' in data:
 
@@ -104,7 +107,14 @@ def add_plant():
 
         # Check if sellers exists in plant_shop.sellers
         for seller in sellers_objs:
-            if plant_shop.get_seller_by_id(seller.id) is None:
+            plant_shop_seller = plant_shop.get_seller_by_id(seller.id)
+            if plant_shop_seller is None:
+                message = "Seller is not found in plant_shop"
+                return Response(response=json.dumps({"Failure": message}),
+                                status=404,
+                                headers={"location": "/plants"},
+                                mimetype="application/json")
+            if plant_shop_seller.name != seller.name or plant_shop_seller.surname != seller.surname:
                 message = "Seller is not found in plant_shop"
                 return Response(response=json.dumps({"Failure": message}),
                                 status=404,
@@ -130,6 +140,9 @@ def add_plant():
 @app.post('/sellers')
 def add_seller():
     data = request.get_json()
+    if len(data) == 3 and 'id' in data:
+        del data['id']
+
     if len(data) == 2 and 'name' in data and 'surname' in data:
 
         new_seller = sl.Seller(data['name'], data['surname'])
@@ -171,12 +184,17 @@ def add_seller_to_plant(plant_id):
                                 status=404,
                                 headers={"location": "/plants/" + str(plant_id) + "/sellers"},
                                 mimetype="application/json")
-            else:
-                plant.sellers.append(new_plant_seller)
-                return Response(response=json.dumps(data),
-                                status=201,
-                                headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
+            if new_plant_seller.name != data['name'] or new_plant_seller.surname != data['surname']:
+                message = "Seller is not found in plant_shop"
+                return Response(response=json.dumps({"Failure": message}),
+                                status=404,
+                                headers={"location": "/plants/" + str(plant_id) + "/sellers"},
                                 mimetype="application/json")
+            plant.sellers.append(new_plant_seller)
+            return Response(response=json.dumps(data),
+                            status=201,
+                            headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(data['id'])},
+                            mimetype="application/json")
         else:
             message = "Bad request, seller already exists on plant's sellers list"
             return Response(response=json.dumps({"Failure": message}),
@@ -196,6 +214,9 @@ def add_seller_to_plant(plant_id):
 @app.put('/plants/<int:plant_id>')
 def update_plant(plant_id):
     data = request.get_json()
+    if len(data) == 4 and 'id' in data:
+        del data['id']
+
     # If json is correct
     if len(data) == 3 and 'name' in data and 'type' in data and 'sellers' in data:
 
@@ -204,7 +225,14 @@ def update_plant(plant_id):
 
         # Check if sellers exists in plant_shop.sellers
         for seller in sellers_objs:
-            if plant_shop.get_seller_by_id(seller.id) is None:
+            plant_shop_seller = plant_shop.get_seller_by_id(seller.id)
+            if plant_shop_seller is None:
+                message = "Seller is not found in plant_shop"
+                return Response(response=json.dumps({"Failure": message}),
+                                status=404,
+                                headers={"location": "/plants/" + str(plant_id)},
+                                mimetype="application/json")
+            if plant_shop_seller.name != seller.name or plant_shop_seller.surname != seller.surname:
                 message = "Seller is not found in plant_shop"
                 return Response(response=json.dumps({"Failure": message}),
                                 status=404,
@@ -247,6 +275,9 @@ def update_plant(plant_id):
 @app.put('/sellers/<int:seller_id>')
 def update_seller(seller_id):
     data = request.get_json()
+    if len(data) == 3 and 'id' in data:
+        del data['id']
+
     # If json is correct
     if len(data) == 2 and 'name' in data and 'surname' in data:
         seller = plant_shop.get_seller_by_id(seller_id)
@@ -298,22 +329,33 @@ def update_plant_seller(plant_id, seller_id):
         seller = plant.find_seller(seller_id)
         # Check if seller exists in plant's sellers list
         if seller is None:
-            # Check if seller exists in plant_shop.sellers
-            new_plant_seller = plant_shop.get_seller_by_id(seller_id)
-            if new_plant_seller is None:
-                message = "Seller is not found in plant_shop"
-                return Response(response=json.dumps({"Failure": message}),
-                                status=404,
-                                headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(seller_id)},
-                                mimetype="application/json")
-            # Append to plant's sellers list
-            new_plant_seller.name = data['name']
-            new_plant_seller.surname = data['surname']
-            plant.sellers.append(new_plant_seller)
-            return Response(response=json.dumps(data),
-                            status=201,
+            message = "Seller is not found in plant_shop"
+            return Response(response=json.dumps({"Failure": message}),
+                            status=404,
                             headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(seller_id)},
                             mimetype="application/json")
+            # # Check if seller exists in plant_shop.sellers
+            # new_plant_seller = plant_shop.get_seller_by_id(seller_id)
+            # if new_plant_seller is None:
+            #     message = "Seller is not found in plant_shop"
+            #     return Response(response=json.dumps({"Failure": message}),
+            #                     status=404,
+            #                     headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(seller_id)},
+            #                     mimetype="application/json")
+            # if new_plant_seller.name != data['name'] or new_plant_seller.surname != data['surname']:
+            #     message = "Seller is not found in plant_shop"
+            #     return Response(response=json.dumps({"Failure": message}),
+            #                     status=404,
+            #                     headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(seller_id)},
+            #                     mimetype="application/json")
+            # # Append to plant's sellers list
+            # new_plant_seller.name = data['name']
+            # new_plant_seller.surname = data['surname']
+            # plant.sellers.append(new_plant_seller)
+            # return Response(response=json.dumps(data),
+            #                 status=201,
+            #                 headers={"location": "/plants/" + str(plant_id) + "/sellers/" + str(seller_id)},
+            #                 mimetype="application/json")
         else:
             # Update seller in plant's sellers list
             seller.name = data['name']
