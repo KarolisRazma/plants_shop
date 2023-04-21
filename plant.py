@@ -13,16 +13,15 @@ class Plant:
         self.sellers = sellers
 
     def __dict__(self):
-        sellers_list = []
-        for seller in self.sellers:
-            sellers_list.append(seller.__dict__())
-
         return {
             'id': self.id,
             'name': self.name,
             'type': self.type,
-            'sellers': sellers_list
+            'sellers': self.sellers_dict()
         }
+
+    def sellers_dict(self):
+        return [seller.__dict__() for seller in self.sellers]
 
     def find_seller(self, seller_id):
         for seller in self.sellers:

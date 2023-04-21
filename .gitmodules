@@ -1,0 +1,3 @@
+[submodule "product_supplier"]
+	path = product_supplier
+	url = https://github.com/Saragdee/webservisai2
