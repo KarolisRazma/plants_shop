@@ -340,6 +340,9 @@ def delete_plant_seller(plant_id, seller_id):
     message = "Seller deleted successfully from plant's sellers list"
     return jsonify({"success": message}), 204, {"location": f"/plants/{plant_id}/sellers/{seller_id}"}
 
+# Functions for other service
+# Start here
+# http://workplace:80/workplaces
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
