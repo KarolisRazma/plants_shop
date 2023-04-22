@@ -1,24 +1,6 @@
 version: '3'
 services:
 
-  mongo:
-    container_name: db
-    image: mongo:4.4.6
-    ports:
-      - "27017:27017"
-
-  workplace:
-    container_name: workplace
-    build:
-      context: workplace
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - mongo
-    networks:
-      - my_network
-
   plant_shop:
     container_name: shop
     build: .
@@ -29,8 +11,28 @@ services:
       - .:/code
     networks:
       - my_network
+    depends_on:
+      - mongo
     environment:
-      - OTHER_SERVICE_URL=http://workplace:80
+      - WORKPLACE_URL=http://workplace
+
+  workplace:
+    container_name: workplace
+    build: ./workplace
+    ports:
+      - "80:80"
+    depends_on:
+      - mongo
+    networks:
+      - my_network
+
+  mongo:
+    image: mongo:4.4.6
+    ports:
+      - "27017:27017"
+    networks:
+      - my_network
 
 networks:
   my_network:
+    driver: bridge

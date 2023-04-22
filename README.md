@@ -27,6 +27,47 @@
     "surname": "Surname200"
 }
 ```
+### Seller with workplace:
+#### Use it with POST method
+```
+{
+    "companyName": "IBM",
+    "description": "At IBM, we do more than work. We create. We create as technologists, developers, and engineers. We create with our partners. We create with our competitors. If you're searching for ways to make the world work better through technology and infrastructure, software and consulting, then we want to work with you.",
+    "industry": "IT Services and IT Consulting",
+    "website": "http://www.ibm.com",
+    "specialities": [
+        "Cloud",
+        "Security"
+    ]
+}
+```
+#### Use it with PUT method
+```
+{   
+    "id": 2
+    "companyName": "IBM",
+    "description": "At IBM, we do more than work. We create. We create as technologists, developers, and engineers. We create with our partners. We create with our competitors. If you're searching for ways to make the world work better through technology and infrastructure, software and consulting, then we want to work with you.",
+    "industry": "IT Services and IT Consulting",
+    "website": "http://www.ibm.com",
+    "specialities": [
+        "Cloud",
+        "Security"
+    ]
+}
+```
+
+### Endpoints for additional service
+#### Get sellers with their workplace
+```http://127.0.0.1:5000/sellers/workplace```
+#### Get seller (by ID) and their workplace
+```http://127.0.0.1:5000/sellers/{id}/workplace```
+#### Post workplace to seller
+```http://127.0.0.1:5000/sellers/{id}/workplace```
+#### Put (update) workplace to seller
+```http://127.0.0.1:5000/sellers/{id}/workplace```
+#### Delete workplace for seller
+```http://127.0.0.1:5000/sellers/{id}/workplace```
+
 Use Postman to test HTTP methods:
 ```https://www.postman.com/```
 
