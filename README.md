@@ -5,7 +5,7 @@
 
 ```cd plants_shop```
 
-```docker-compose build```
+```git submodule update --init```
 
 ```docker-compose up```
 
