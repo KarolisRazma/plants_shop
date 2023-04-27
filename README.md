@@ -3,7 +3,7 @@
 ## How to launch web service 
 ```git clone```
 
-```cd plants_shop_2```
+```cd plants_shop```
 
 ```git submodule update --init```
 
